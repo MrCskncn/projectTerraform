@@ -16,7 +16,7 @@ resource "aws_vpc" "main" {
 }
 
 resource "aws_subnet" "public-subnet" {
-  # Number of public subnet is defined in vars
+  
   for_each = var.public_prefix
  
   availability_zone = each.value["az"]
@@ -32,7 +32,7 @@ resource "aws_subnet" "public-subnet" {
 }
 
 resource "aws_subnet" "private-subnet" {
-  # Number of private subnet is defined in vars
+  
   for_each = var.private_prefix
  
   availability_zone = each.value["az"]
@@ -55,16 +55,14 @@ resource "aws_internet_gateway" "internet-gateway" {
 
 resource "aws_nat_gateway" "nat-gateway" {
   
-  allocation_id = data.aws_eip.by_filter.id #variable'a yaz data source type
+  allocation_id = data.aws_eip.by_filter.id 
   subnet_id     = aws_subnet.public-subnet["sub-1"].id
-  #"${element(aws_subnet.terraformProject_public_subnet.*.id, 0)}"
+ 
 
   tags = {
     Name = "${var.project_name}-gw-NAT"
   }
 
-  # To ensure proper ordering, it is recommended to add an explicit dependency
-  # on the Internet Gateway for the VPC.
   depends_on = [aws_internet_gateway.internet-gateway]
 }
 
@@ -87,11 +85,10 @@ resource "aws_route_table" "route_table" {
 
 resource "aws_default_route_table" "route_table_private" {
   default_route_table_id = aws_vpc.main.default_route_table_id
-  #vpc_id = aws_vpc.main.id
 
    route {
     cidr_block = "0.0.0.0/0"
-    # Which internet gateway to use
+    
     nat_gateway_id = aws_nat_gateway.nat-gateway.id
   }
 
@@ -106,7 +103,6 @@ resource "aws_route_table_association" "custom-rtb-public-subnet" {
   for_each = var.public_prefix
   route_table_id = aws_route_table.route_table.id
   subnet_id      = aws_subnet.public-subnet[each.key].id
-  #nat_gateway_id
 }
 
 

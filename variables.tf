@@ -11,7 +11,6 @@ variable "project_name" {
    default = "tProject"
 }
 
-#map of maps for create subnets
 variable "public_prefix" {
    type = map
    default = {
